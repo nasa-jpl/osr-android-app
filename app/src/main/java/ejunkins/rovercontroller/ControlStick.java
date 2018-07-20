@@ -110,13 +110,12 @@ public class ControlStick extends SurfaceView implements SurfaceHolder.Callback,
             paint.setColor(Color.TRANSPARENT);
             paint.setStyle(Paint.Style.FILL);
             for (int i = 1; i <= 100; i++) {
-                int x = i;
+                int blueVal = i;
                 if (i > 50){
-                    x = 2*i;
-                } else {
-                    x = i;
+                    blueVal = 2 * i;
                 }
-                colors.setARGB(255, 0, 0, x);
+
+                colors.setARGB(255, 0, 0, blueVal);
                 RectF borderRect = new RectF(centerX -  r/6 +i, centerY + r*4/10, centerX + r/6 - i, centerY - r*4/10);
                 myCanvas.drawRoundRect(borderRect,50,50, colors);
             }

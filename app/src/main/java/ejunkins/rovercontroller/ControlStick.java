@@ -135,19 +135,26 @@ public class ControlStick extends SurfaceView implements SurfaceHolder.Callback,
             paint.setStyle(Paint.Style.STROKE);
             myCanvas.drawCircle(centerX, centerY, r * (4/9), paint);
 
-            for (int i = 1; i <= 100; i++) {
-                if (i == 1){
-                    colors.setARGB(255,255,255,255);
-                } else {
-                    colors.setARGB(50, i, i, i * 2);
-                }
-                myCanvas.drawOval(centerX - r/4, centerY + r/4, centerX + r/4, centerY - r/4, colors);
+
+            int ovalDisplacement = r / 4;
+            // Make background oval
+            colors.setARGB(255,255,255,255);
+            myCanvas.drawOval(centerX - ovalDisplacement, centerY + ovalDisplacement,
+                              centerX + ovalDisplacement, centerY - ovalDisplacement, colors);
+
+            // Fill in over background oval
+            for (int i = 2; i <= 100; i++) {
+                colors.setARGB(50, i, i, i * 2);
+                myCanvas.drawOval(centerX - ovalDisplacement, centerY + ovalDisplacement,
+                                  centerX + ovalDisplacement, centerY - ovalDisplacement, colors);
             }
 
             for (int i =1; i <= (int) (baseRadius/ratio); i++){
                 colors.setARGB(255/i,0,0,0);
-                myCanvas.drawCircle(newX-cos*hypotenuse* (ratio/baseRadius)*i,
-                        newY - sin *hypotenuse * (ratio/baseRadius)* i, i*(hatRadius * ratio/baseRadius),colors);
+                myCanvas.drawCircle(newX - (cos * hypotenuse) * (ratio / baseRadius) * i,
+                                    newY - (sin * hypotenuse) * (ratio / baseRadius) * i,
+                                    i * (hatRadius * ratio / baseRadius),
+                                    colors);
             }
             colors.setARGB(255,0,0,0);
             myCanvas.drawCircle(newX,newY,hatRadius+ (int) 0.2* hatRadius,colors );

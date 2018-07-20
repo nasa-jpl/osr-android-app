@@ -98,13 +98,13 @@ public class ControlStick extends SurfaceView implements SurfaceHolder.Callback,
             Paint colors = new Paint();
             myCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
 
-            //Used to make 3-D effect on joystick
+            // Used to make 3-D effect on joystick
             float hypotenuse = (float) Math.sqrt(Math.pow(newX-centerX,2) + Math.pow(newY - centerY,2));
             float sin = (newY - centerY)/hypotenuse;
             float cos = (newX - centerX)/hypotenuse;
 
             Paint paint = new Paint();
-            int r = Math.min(getWidth(),getHeight());
+            int r = Math.min(getWidth(),getHeight()); // r as in polar
             //RectF borderRect = new RectF(centerX - getHeight() / 6, centerY + getWidth() / 3, centerX + getHeight() / 6, centerY - getWidth() / 3);
 
             paint.setColor(Color.TRANSPARENT);
@@ -123,7 +123,7 @@ public class ControlStick extends SurfaceView implements SurfaceHolder.Callback,
             paint.setColor(Color.WHITE);
             paint.setStrokeWidth(15);
             paint.setStyle(Paint.Style.STROKE);
-            myCanvas.drawCircle(centerX,centerY,Math.min(getWidth(),getHeight())*4/9,paint);
+            myCanvas.drawCircle(centerX, centerY, r * (4/9), paint);
 
             for (int i = 1; i <= 100; i++) {
                 if (i == 1){

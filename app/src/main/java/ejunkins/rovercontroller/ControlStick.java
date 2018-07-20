@@ -133,60 +133,71 @@ public class ControlStick extends SurfaceView implements SurfaceHolder.Callback,
             int r = Math.min(getWidth(),getHeight()); // r as in polar
             //RectF borderRect = new RectF(centerX - getHeight() / 6, centerY + getWidth() / 3, centerX + getHeight() / 6, centerY - getWidth() / 3);
 
-            paint.setColor(Color.TRANSPARENT);
-            paint.setStyle(Paint.Style.FILL);
+            makeJoystickBase: {
+                // Requirements: paint, r, myCanvas, colors
 
-            int x_rDisplacement = r / 6,
-                y_rDisplacement = r * (4/10); // Why not (2/5) instead?
+                paint.setColor(Color.TRANSPARENT);
+                paint.setStyle(Paint.Style.FILL);
 
-            for (int shift = 1; shift <= 100; shift++) {
-                int blueVal = shift;
-                if (i > 50){
-                    blueVal = 2 * shift;
+                int x_rDisplacement = r / 6,
+                    y_rDisplacement = r * (4/10); // Why not (2/5) instead?
+
+                for (int shift = 1; shift <= 100; shift++) {
+                    int blueVal = shift;
+                    if (i > 50){
+                        blueVal = 2 * shift;
+                    }
+
+                    colors.setARGB(255, 0, 0, blueVal);
+                    RectF borderRect = makeJoystickRectF(x_rDisplacement, y_rDisplacement, shift);
+                    myCanvas.drawRoundRect(borderRect,50,50, colors);
                 }
-
-                colors.setARGB(255, 0, 0, blueVal);
-                RectF borderRect = makeJoystickRectF(x_rDisplacement, y_rDisplacement, shift);
-                myCanvas.drawRoundRect(borderRect,50,50, colors);
             }
 
-            //colors.setARGB(255,150,150,150);
-            paint.setColor(Color.WHITE);
-            paint.setStrokeWidth(15);
-            paint.setStyle(Paint.Style.STROKE);
-            myCanvas.drawCircle(centerX, centerY, r * (4/9), paint);
+            makeJoystickStem: {
+                // Requirements: paint, r, myCanvas, colors
+
+                //colors.setARGB(255,150,150,150);
+                paint.setColor(Color.WHITE);
+                paint.setStrokeWidth(15);
+                paint.setStyle(Paint.Style.STROKE);
+                myCanvas.drawCircle(centerX, centerY, r * (4/9), paint);
 
 
-            int ovalDisplacement = r / 4;
-            // Make background oval
-            colors.setARGB(255,255,255,255);
-            myCanvas.drawOval(centerX - ovalDisplacement, centerY + ovalDisplacement,
-                              centerX + ovalDisplacement, centerY - ovalDisplacement, colors);
-
-            // Fill in over background oval
-            for (int i = 2; i <= 100; i++) {
-                colors.setARGB(50, i, i, i * 2);
+                int ovalDisplacement = r / 4;
+                // Make background oval
+                colors.setARGB(255,255,255,255);
                 myCanvas.drawOval(centerX - ovalDisplacement, centerY + ovalDisplacement,
                                   centerX + ovalDisplacement, centerY - ovalDisplacement, colors);
+
+                // Fill in over background oval
+                for (int i = 2; i <= 100; i++) {
+                    colors.setARGB(50, i, i, i * 2);
+                    myCanvas.drawOval(centerX - ovalDisplacement, centerY + ovalDisplacement,
+                                      centerX + ovalDisplacement, centerY - ovalDisplacement, colors);
+                }
             }
 
-            for (int i =1; i <= (int) (baseRadius/ratio); i++){
-                colors.setARGB(255/i,0,0,0);
-                myCanvas.drawCircle(newX - (cos * hypotenuse) * (ratio / baseRadius) * i,
-                                    newY - (sin * hypotenuse) * (ratio / baseRadius) * i,
-                                    i * (hatRadius * ratio / baseRadius),
-                                    colors);
+            makeJoystickHat: {
+                // Requirements: myCanvas, colors, @params
+                for (int i =1; i <= (int) (baseRadius/ratio); i++){
+                    colors.setARGB(255/i,0,0,0);
+                    myCanvas.drawCircle(newX - (cos * hypotenuse) * (ratio / baseRadius) * i,
+                                        newY - (sin * hypotenuse) * (ratio / baseRadius) * i,
+                                        i * (hatRadius * ratio / baseRadius),
+                                        colors);
+                }
+
+                colors.setARGB(255,0,0,0);
+                myCanvas.drawCircle(newX, newY, hatRadius+ (int) 0.2* hatRadius , colors);
+
+                for(int drawIteration =0; drawIteration <= (int)( hatRadius); drawIteration++) {
+                    setJoystickHatColor(drawIteration, colors);
+                    myCanvas.drawCircle(newX, newY, hatRadius - (float) drawIteration * 2/3, colors);
+                }
+
+                getHolder().unlockCanvasAndPost(myCanvas);
             }
-
-            colors.setARGB(255,0,0,0);
-            myCanvas.drawCircle(newX, newY, hatRadius+ (int) 0.2* hatRadius , colors);
-
-            for(int drawIteration =0; drawIteration <= (int)( hatRadius); drawIteration++) {
-                setJoystickHatColor(drawIteration, colors);
-                myCanvas.drawCircle(newX, newY, hatRadius - (float) drawIteration * 2/3, colors);
-            }
-
-            getHolder().unlockCanvasAndPost(myCanvas);
         }
     }
 

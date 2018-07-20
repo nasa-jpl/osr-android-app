@@ -80,6 +80,11 @@ public class ControlStick extends SurfaceView implements SurfaceHolder.Callback,
         hatRadius = Math.min(getWidth(), getHeight()) / 4;
     }
 
+    private RectF makeJoystickRectF(int x_rDisplacement, int y_rDisplacement, int shift) {
+        return new RectF(centerX -  x_rDisplacement + shift, centerY + y_rDisplacement,
+                         centerX + x_rDisplacement - shift, centerY - y_rDisplacement);
+    }
+
     /**
      * Draws the joysticks at their updated x and y location based on touch data
      * @param newX X location of touch
@@ -109,16 +114,21 @@ public class ControlStick extends SurfaceView implements SurfaceHolder.Callback,
 
             paint.setColor(Color.TRANSPARENT);
             paint.setStyle(Paint.Style.FILL);
-            for (int i = 1; i <= 100; i++) {
-                int blueVal = i;
+
+            int x_rDisplacement = r / 6,
+                y_rDisplacement = r * (4/10); // Why not (2/5) instead?
+
+            for (int shift = 1; shift <= 100; shift++) {
+                int blueVal = shift;
                 if (i > 50){
-                    blueVal = 2 * i;
+                    blueVal = 2 * shift;
                 }
 
                 colors.setARGB(255, 0, 0, blueVal);
-                RectF borderRect = new RectF(centerX -  r/6 +i, centerY + r*4/10, centerX + r/6 - i, centerY - r*4/10);
+                RectF borderRect = makeJoystickRectF(x_rDisplacement, y_rDisplacement, shift);
                 myCanvas.drawRoundRect(borderRect,50,50, colors);
             }
+
             //colors.setARGB(255,150,150,150);
             paint.setColor(Color.WHITE);
             paint.setStrokeWidth(15);

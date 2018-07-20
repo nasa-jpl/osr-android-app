@@ -85,6 +85,27 @@ public class ControlStick extends SurfaceView implements SurfaceHolder.Callback,
                          centerX + x_rDisplacement - shift, centerY - y_rDisplacement);
     }
 
+    private void setJoystickHatColor(int drawIteration, Paint colors) {
+        int tenPercHatRadius = (int) (hatRadius/10);
+        int halfHatRadius = (int) (hatRadius/2);
+        int twoThirdHatRadius = (int) (hatRadius*2/3);
+
+        if (drawIteration <= tenPercHatRadius){
+            colors.setARGB(255,0,0,52);
+
+        } else if (drawIteration > tenPercHatRadius &&
+                   drawIteration <= halfHatRadius ){
+            colors.setARGB(255,0,0,52+2*i);
+
+        } else if (drawIteration > halfHatRadius &&
+                   drawIteration < twoThirdHatRadius){
+            colors.setARGB(255,0,0,0);
+
+        } else if (drawIteration >= twoThirdHatRadius){
+            colors.setARGB(255,0,0,255) ;
+        }
+    }
+
     /**
      * Draws the joysticks at their updated x and y location based on touch data
      * @param newX X location of touch
@@ -156,25 +177,15 @@ public class ControlStick extends SurfaceView implements SurfaceHolder.Callback,
                                     i * (hatRadius * ratio / baseRadius),
                                     colors);
             }
+
             colors.setARGB(255,0,0,0);
-            myCanvas.drawCircle(newX,newY,hatRadius+ (int) 0.2* hatRadius,colors );
-            int b1 = (int) (hatRadius/10);
-            int b2 = (int) (hatRadius/2);
-            int b3 = (int) (hatRadius*2/3);
+            myCanvas.drawCircle(newX, newY, hatRadius+ (int) 0.2* hatRadius , colors);
 
-            for(int i =0; i<= (int)( hatRadius);i++) {
-
-                if (i <= b1){
-                    colors.setARGB(255,0,0,52);
-                } else if (i > b1 && i <= b2 ){
-                    colors.setARGB(255,0,0,52+2*i);
-                } else if (i > b2 && i < b3){
-                    colors.setARGB(255,0,0,0);
-                } else if (i >= b3){
-                    colors.setARGB(255,0,0,255) ;
-                }
-                myCanvas.drawCircle(newX, newY, hatRadius - (float) i*2/3, colors);
+            for(int drawIteration =0; drawIteration <= (int)( hatRadius); drawIteration++) {
+                setJoystickHatColor(drawIteration, colors);
+                myCanvas.drawCircle(newX, newY, hatRadius - (float) drawIteration * 2/3, colors);
             }
+
             getHolder().unlockCanvasAndPost(myCanvas);
         }
     }

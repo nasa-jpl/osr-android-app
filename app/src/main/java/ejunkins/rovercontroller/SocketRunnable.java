@@ -1,24 +1,13 @@
 package ejunkins.rovercontroller;
 
 import android.bluetooth.BluetoothSocket;
-import android.icu.util.Output;
 import android.os.SystemClock;
-import android.renderscript.ScriptGroup;
 import android.util.Log;
-import android.widget.TextView;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.net.Socket;
-import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
-import java.util.Arrays;
-import java.util.Objects;
 
 public class SocketRunnable implements Runnable {
 
@@ -71,16 +60,14 @@ public class SocketRunnable implements Runnable {
                     int e = Integer.parseInt(roverFace.toString());
                     ByteBuffer b = ByteBuffer.allocate(4);
                     ByteBuffer d = ByteBuffer.allocate(4);
-                    ByteBuffer f = ByteBuffer.allocate(4);
-                    byte[] array_1 = b.putInt(a).array();
-                    byte[] array_2 = d.putInt(c).array();
-                    byte[] array_3 = f.putInt(e).array();
-                    byte[] chk_sum = new byte[4];
+                    byte[] array1 = b.putInt(a).array();
+                    byte[] array2 = d.putInt(c).array();
+                    byte[] chkSum = new byte[4];
 
-                    for(int i = 0; i<array_1.length; i++){
-                        chk_sum[i] = (byte)(array_1[i] ^ array_2[i] );
+                    for(int i = 0; i<array1.length; i++){
+                        chkSum[i] = (byte)(array1[i] ^ array2[i] );
                     }
-                    ByteBuffer x = ByteBuffer.allocate(16).putInt(a).putInt(c).putInt(e).put(chk_sum);
+                    ByteBuffer x = ByteBuffer.allocate(16).putInt(a).putInt(c).putInt(e).put(chkSum);
                     byte[] result = x.array();
                     mmOutStream.write(result);
 

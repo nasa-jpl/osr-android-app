@@ -1,30 +1,24 @@
 package ejunkins.rovercontroller;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.RectF;
-import android.graphics.Shader;
-import android.util.Log;
+import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.util.AttributeSet;
-import android.content.Context;
 import android.view.View;
-import android.widget.ImageView;
-
-import static ejunkins.rovercontroller.R.attr.height;
 
 /**
  * Joystick class for sending control signals to the raspberry pi
  */
 public class ControlStick extends SurfaceView implements SurfaceHolder.Callback, View.OnTouchListener {
 
-    private float centerX;
+    private float centerX = (float)getWidth() / 2;
     private float centerY;
     private float baseRadius;
     private float hatRadius;
@@ -74,7 +68,6 @@ public class ControlStick extends SurfaceView implements SurfaceHolder.Callback,
      * Gets the dimensions of the space the joystick is allocated to
      */
     private void setupDimensions(){
-        centerX = getWidth() / 2;
         centerY = getHeight() / 2;
         baseRadius = Math.min(getWidth(), getHeight()) *4/11;
         hatRadius = Math.min(getWidth(), getHeight()) / 4;
@@ -110,14 +103,14 @@ public class ControlStick extends SurfaceView implements SurfaceHolder.Callback,
             paint.setColor(Color.TRANSPARENT);
             paint.setStyle(Paint.Style.FILL);
             for (int i = 1; i <= 100; i++) {
-                int x = i;
+                int x ;
                 if (i > 50){
                     x = 2*i;
                 } else {
                     x = i;
                 }
                 colors.setARGB(255, 0, 0, x);
-                RectF borderRect = new RectF(centerX -  r/6 +i, centerY + r*4/10, centerX + r/6 - i, centerY - r*4/10);
+                RectF borderRect = new RectF(centerX -  (float)r/6 +i, centerY + (float)r*4/10, centerX + (float)r/6 - i, centerY - (float)r*4/10);
                 myCanvas.drawRoundRect(borderRect,50,50, colors);
             }
             //colors.setARGB(255,150,150,150);
@@ -132,7 +125,7 @@ public class ControlStick extends SurfaceView implements SurfaceHolder.Callback,
                 } else {
                     colors.setARGB(50, i, i, i * 2);
                 }
-                myCanvas.drawOval(centerX - r/4, centerY + r/4, centerX + r/4, centerY - r/4, colors);
+                myCanvas.drawOval(centerX - (float)r/4, centerY + (float)r/4, centerX + (float)r/4, centerY - (float)r/4, colors);
             }
 
             for (int i =1; i <= (int) (baseRadius/ratio); i++){

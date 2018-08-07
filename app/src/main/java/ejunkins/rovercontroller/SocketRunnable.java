@@ -1,43 +1,32 @@
 package ejunkins.rovercontroller;
 
 import android.bluetooth.BluetoothSocket;
-import android.icu.util.Output;
 import android.os.SystemClock;
-import android.renderscript.ScriptGroup;
 import android.util.Log;
-import android.widget.TextView;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.net.Socket;
-import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
-import java.util.Arrays;
-import java.util.Objects;
 
 public class SocketRunnable implements Runnable {
 
-    private StringBuffer exit;
-    private StringBuffer throttle;
-    private StringBuffer steering;
-    private StringBuffer roverFace;
-    private StringBuffer servo;
-    private StringBuffer connectedStatus;
-    private BluetoothSocket socket;
+    private StringBuffer mExit;
+    private StringBuffer mThrottle;
+    private StringBuffer mSteering;
+    private StringBuffer mRoverFace;
+    private StringBuffer mServo;
+    private StringBuffer mConnectedStatus;
+    private BluetoothSocket mBluetoothSocket;
 
     protected SocketRunnable(StringBuffer throttle, StringBuffer steering, StringBuffer roverFace, StringBuffer servo, BluetoothSocket socket, StringBuffer exit,StringBuffer connectedStatus){
-        this.throttle = throttle;
-        this.steering = steering;
-        this.roverFace = roverFace;
-        this.socket = socket;
-        this.servo = servo;
-        this.exit = exit;
-        this.connectedStatus = connectedStatus;
+        this.mThrottle = throttle;
+        this.mSteering = steering;
+        this.mRoverFace = roverFace;
+        this.mBluetoothSocket = socket;
+        this.mServo = servo;
+        this.mExit = exit;
+        this.mConnectedStatus = connectedStatus;
     }
 
     private InputStream tmpIn = null;
@@ -49,26 +38,26 @@ public class SocketRunnable implements Runnable {
         long lastTimeSent = System.currentTimeMillis();
         long lastTimeReceived = System.currentTimeMillis();
         long now;
-        while (exit.toString().equals("False")){
+        while (mExit.toString().equals("False")){
             now = System.currentTimeMillis();
             if (now > lastTimeSent + 50){
                 lastTimeSent = now;
                 try {
-                    tmpIn = socket.getInputStream();
+                    tmpIn = mBluetoothSocket.getInputStream();
                 }catch (IOException e){
                     Log.e("MY_APP_DEBUG_TAG","Error occured when created input stream",e);
                 }
                 try {
-                    tmpOut = socket.getOutputStream();
+                    tmpOut = mBluetoothSocket.getOutputStream();
                 } catch (IOException e){
                     Log.e("MY_APP_DEBUG_TAG","Error occured when creating output stream",e);
                 }
                 InputStream mmInStream = tmpIn;
                 OutputStream mmOutStream = tmpOut;
                 try {
-                    int a = Integer.parseInt(throttle.toString())+100;
-                    int c = Integer.parseInt(steering.toString())+100;
-                    int e = Integer.parseInt(roverFace.toString());
+                    int a = Integer.parseInt(mThrottle.toString())+100;
+                    int c = Integer.parseInt(mSteering.toString())+100;
+                    int e = Integer.parseInt(mRoverFace.toString());
                     ByteBuffer b = ByteBuffer.allocate(4);
                     ByteBuffer d = ByteBuffer.allocate(4);
                     ByteBuffer f = ByteBuffer.allocate(4);
@@ -90,14 +79,14 @@ public class SocketRunnable implements Runnable {
                         counter += 1;
                     }
                     if (counter >= 100){
-                        exit.delete(0,exit.length());
-                        exit.append("True");
-                        Log.d("MY_EXITING_THREAD",exit.toString());
+                        mExit.delete(0, mExit.length());
+                        mExit.append("True");
+                        Log.d("MY_EXITING_THREAD", mExit.toString());
                         break;
                     }
                     String input = String.valueOf(mmInStream.read());
-                    connectedStatus.delete(0, connectedStatus.length());
-                    connectedStatus.append(input);
+                    mConnectedStatus.delete(0, mConnectedStatus.length());
+                    mConnectedStatus.append(input);
                 } catch (IOException e) {
                     Log.d("ioExcpetion",e.toString());
                     e.printStackTrace();
@@ -105,12 +94,12 @@ public class SocketRunnable implements Runnable {
             }
         }
         try {
-            socket.close();
+            mBluetoothSocket.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        connectedStatus.delete(0,connectedStatus.length());
-        connectedStatus.append("50");
+        mConnectedStatus.delete(0, mConnectedStatus.length());
+        mConnectedStatus.append("50");
     }
 }
 

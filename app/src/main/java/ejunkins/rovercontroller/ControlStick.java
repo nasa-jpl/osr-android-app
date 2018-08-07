@@ -3,39 +3,33 @@ package ejunkins.rovercontroller;
 import android.annotation.SuppressLint;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.RectF;
-import android.graphics.Shader;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.util.AttributeSet;
 import android.content.Context;
 import android.view.View;
-import android.widget.ImageView;
-
-import static ejunkins.rovercontroller.R.attr.height;
 
 /**
  * Joystick class for sending control signals to the raspberry pi
  */
 public class ControlStick extends SurfaceView implements SurfaceHolder.Callback, View.OnTouchListener {
 
-    private float centerX;
-    private float centerY;
-    private float baseRadius;
-    private float hatRadius;
-    public JoystickListener joystickCallback;
+    private float mCenterX;
+    private float mCenterY;
+    private float mBaseRadius;
+    private float mHatRadius;
+    public JoystickListener joystickListener;
 
     public ControlStick(Context context){
         super(context);
         getHolder().addCallback(this);
         setOnTouchListener(this);
         if(context instanceof JoystickListener)
-            joystickCallback = (JoystickListener) context;
+            joystickListener = (JoystickListener) context;
     }
 
     public ControlStick(Context context, AttributeSet attributes, int style){
@@ -43,7 +37,7 @@ public class ControlStick extends SurfaceView implements SurfaceHolder.Callback,
         getHolder().addCallback(this);
         setOnTouchListener(this);
         if(context instanceof JoystickListener)
-            joystickCallback = (JoystickListener) context;
+            joystickListener = (JoystickListener) context;
     }
 
     public ControlStick(Context context, AttributeSet attributes){
@@ -51,7 +45,7 @@ public class ControlStick extends SurfaceView implements SurfaceHolder.Callback,
         getHolder().addCallback(this);
         setOnTouchListener(this);
         if(context instanceof JoystickListener)
-            joystickCallback = (JoystickListener) context;
+            joystickListener = (JoystickListener) context;
     }
 
     /**
@@ -61,7 +55,7 @@ public class ControlStick extends SurfaceView implements SurfaceHolder.Callback,
     @Override
     public void surfaceCreated(SurfaceHolder holder){
         setupDimensions();
-        drawJoystick(centerX,centerY);
+        drawJoystick(mCenterX, mCenterY);
     }
     @Override
     public void surfaceChanged(SurfaceHolder holder, int forsat, int width, int height){
@@ -74,10 +68,10 @@ public class ControlStick extends SurfaceView implements SurfaceHolder.Callback,
      * Gets the dimensions of the space the joystick is allocated to
      */
     private void setupDimensions(){
-        centerX = getWidth() / 2;
-        centerY = getHeight() / 2;
-        baseRadius = Math.min(getWidth(), getHeight()) *4/11;
-        hatRadius = Math.min(getWidth(), getHeight()) / 4;
+        mCenterX = getWidth() / 2;
+        mCenterY = getHeight() / 2;
+        mBaseRadius = Math.min(getWidth(), getHeight()) *4/11;
+        mHatRadius = Math.min(getWidth(), getHeight()) / 4;
     }
 
     /**
@@ -99,13 +93,14 @@ public class ControlStick extends SurfaceView implements SurfaceHolder.Callback,
             myCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
 
             //Used to make 3-D effect on joystick
-            float hypotenuse = (float) Math.sqrt(Math.pow(newX-centerX,2) + Math.pow(newY - centerY,2));
-            float sin = (newY - centerY)/hypotenuse;
-            float cos = (newX - centerX)/hypotenuse;
+            float hypotenuse = (float) Math.sqrt(Math.pow(newX- mCenterX,2) + Math.pow(newY -
+                    mCenterY,2));
+            float sin = (newY - mCenterY)/hypotenuse;
+            float cos = (newX - mCenterX)/hypotenuse;
 
             Paint paint = new Paint();
             int r = Math.min(getWidth(),getHeight());
-            //RectF borderRect = new RectF(centerX - getHeight() / 6, centerY + getWidth() / 3, centerX + getHeight() / 6, centerY - getWidth() / 3);
+            //RectF borderRect = new RectF(mCenterX - getHeight() / 6, mCenterY + getWidth() / 3, mCenterX + getHeight() / 6, mCenterY - getWidth() / 3);
 
             paint.setColor(Color.TRANSPARENT);
             paint.setStyle(Paint.Style.FILL);
@@ -117,14 +112,15 @@ public class ControlStick extends SurfaceView implements SurfaceHolder.Callback,
                     x = i;
                 }
                 colors.setARGB(255, 0, 0, x);
-                RectF borderRect = new RectF(centerX -  r/6 +i, centerY + r*4/10, centerX + r/6 - i, centerY - r*4/10);
+                RectF borderRect = new RectF(
+                        mCenterX -  r/6 +i, mCenterY + r*4/10, mCenterX + r/6 - i, mCenterY - r*4/10);
                 myCanvas.drawRoundRect(borderRect,50,50, colors);
             }
             //colors.setARGB(255,150,150,150);
             paint.setColor(Color.WHITE);
             paint.setStrokeWidth(15);
             paint.setStyle(Paint.Style.STROKE);
-            myCanvas.drawCircle(centerX,centerY,Math.min(getWidth(),getHeight())*4/9,paint);
+            myCanvas.drawCircle(mCenterX, mCenterY,Math.min(getWidth(),getHeight())*4/9,paint);
 
             for (int i = 1; i <= 100; i++) {
                 if (i == 1){
@@ -132,21 +128,22 @@ public class ControlStick extends SurfaceView implements SurfaceHolder.Callback,
                 } else {
                     colors.setARGB(50, i, i, i * 2);
                 }
-                myCanvas.drawOval(centerX - r/4, centerY + r/4, centerX + r/4, centerY - r/4, colors);
+                myCanvas.drawOval(mCenterX - r/4, mCenterY + r/4, mCenterX + r/4, mCenterY - r/4, colors);
             }
 
-            for (int i =1; i <= (int) (baseRadius/ratio); i++){
+            for (int i =1; i <= (int) (mBaseRadius /ratio); i++){
                 colors.setARGB(255/i,0,0,0);
-                myCanvas.drawCircle(newX-cos*hypotenuse* (ratio/baseRadius)*i,
-                        newY - sin *hypotenuse * (ratio/baseRadius)* i, i*(hatRadius * ratio/baseRadius),colors);
+                myCanvas.drawCircle(newX-cos*hypotenuse* (ratio/ mBaseRadius)*i,
+                        newY - sin *hypotenuse * (ratio/ mBaseRadius)* i, i*(mHatRadius * ratio/
+                                mBaseRadius),colors);
             }
             colors.setARGB(255,0,0,0);
-            myCanvas.drawCircle(newX,newY,hatRadius+ (int) 0.2* hatRadius,colors );
-            int b1 = (int) (hatRadius/10);
-            int b2 = (int) (hatRadius/2);
-            int b3 = (int) (hatRadius*2/3);
+            myCanvas.drawCircle(newX,newY, mHatRadius + (int) 0.2* mHatRadius,colors );
+            int b1 = (int) (mHatRadius /10);
+            int b2 = (int) (mHatRadius /2);
+            int b3 = (int) (mHatRadius *2/3);
 
-            for(int i =0; i<= (int)( hatRadius);i++) {
+            for(int i =0; i<= (int)(mHatRadius);i++) {
 
                 if (i <= b1){
                     colors.setARGB(255,0,0,52);
@@ -157,7 +154,7 @@ public class ControlStick extends SurfaceView implements SurfaceHolder.Callback,
                 } else if (i >= b3){
                     colors.setARGB(255,0,0,255) ;
                 }
-                myCanvas.drawCircle(newX, newY, hatRadius - (float) i*2/3, colors);
+                myCanvas.drawCircle(newX, newY, mHatRadius - (float) i*2/3, colors);
             }
             getHolder().unlockCanvasAndPost(myCanvas);
         }
@@ -175,21 +172,23 @@ public class ControlStick extends SurfaceView implements SurfaceHolder.Callback,
         if (view.equals(this)) {
             if (myEvent.getAction() != myEvent.ACTION_UP) {
                 int height = Math.min(getWidth(),getHeight())/3;
-                float displacement = (float) Math.sqrt(Math.pow(myEvent.getY() - centerY, 2));
+                float displacement = (float) Math.sqrt(Math.pow(myEvent.getY() - mCenterY, 2));
                 if (displacement < height) {
-                    drawJoystick(centerX, myEvent.getY());
-                    joystickCallback.onJoystickMoved((myEvent.getX() - centerX)/height, (myEvent.getY() - centerY)/height, getId());
+                    drawJoystick(mCenterX, myEvent.getY());
+                    joystickListener.onJoystickMoved((myEvent.getX() - mCenterX)/height, (myEvent.getY() -
+                            mCenterY)/height, getId());
                 }
                 else{
                     float ratio = height/displacement;
-                    float constrainedX = centerX + (myEvent.getX()-centerX)*ratio;
-                    float constrainedY = centerY + (myEvent.getY()-centerY)*ratio;
-                    drawJoystick(centerX,constrainedY);
-                    joystickCallback.onJoystickMoved((constrainedX-centerX)/height, (constrainedY-centerY)/height, getId());
+                    float constrainedX = mCenterX + (myEvent.getX()- mCenterX)*ratio;
+                    float constrainedY = mCenterY + (myEvent.getY()- mCenterY)*ratio;
+                    drawJoystick(mCenterX,constrainedY);
+                    joystickListener.onJoystickMoved((constrainedX- mCenterX)/height, (constrainedY-
+                            mCenterY)/height, getId());
                 }
             } else {
-                drawJoystick(centerX, centerY);
-                joystickCallback.onJoystickMoved(0,0,getId());
+                drawJoystick(mCenterX, mCenterY);
+                joystickListener.onJoystickMoved(0,0,getId());
             }
         }
         return true;

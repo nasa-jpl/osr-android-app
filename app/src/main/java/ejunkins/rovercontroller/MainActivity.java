@@ -6,7 +6,6 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
-import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -21,17 +20,13 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.ToggleButton;
 
 import java.io.IOException;
-import java.nio.IntBuffer;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
@@ -39,28 +34,29 @@ import static java.lang.Boolean.TRUE;
 //import com.cardiomood.android.controls.gauge.SpeedometerGauge;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener, ControlStick.JoystickListener, RightControlStick.JoystickListener, View.OnClickListener{
-    private Context context;
-    private ControlStick controlStick;
-    private RightControlStick rightControlStick;
-    private Vibrator myVib; // For Haptic Feedback
-    StringBuffer throttle;
-    StringBuffer steering;
-    StringBuffer roverFace;
-    StringBuffer servo;
-    StringBuffer exit;
-    StringBuffer connectedStatus;
-    CheckBox connected;
+    private Context mContext;
+    private ControlStick mControlStick;
+    private RightControlStick mRightControlStick;
+    private Vibrator mVibrator; // For Haptic Feedback
 
-    BluetoothSocket mmSocket;
-    BluetoothServerSocket mmServerSocket;
-    BluetoothDevice mmDevice = null;
+    StringBuffer mThrottle;
+    StringBuffer mSteering;
+    StringBuffer mRoverFace;
+    StringBuffer mServo;
+    StringBuffer mExit;
+    StringBuffer mConnectedStatus;
+    CheckBox mConnected;
+
+    BluetoothSocket mSocket;
+    BluetoothServerSocket mServerSocket;
+    BluetoothDevice mBluetoothDevice = null;
     BluetoothAdapter mBluetoothAdapter;
-    Button socketButton;
-    Button disconnect;
-    String connection_name;
-    ToggleButton toggle;
-    ToggleButton servoButton;
-    Handler handler;
+    Button mSocketButton;
+    Button mDisconnectButton;
+    String mConnectionName;
+    ToggleButton mToggleButton;
+    ToggleButton mServoButton;
+    Handler mConnectionStatusHandler;
     SocketRunnable socketrunnable;
 
     @Override
@@ -69,35 +65,36 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        context = getApplicationContext();
-        controlStick = new ControlStick(this);
-        rightControlStick = new RightControlStick(this);
+        mContext = getApplicationContext();
+        mControlStick = new ControlStick(this);
+        mRightControlStick = new RightControlStick(this);
         setContentView(R.layout.activity_main);
 
-        throttle = new StringBuffer();
-        steering = new StringBuffer();
-        roverFace = new StringBuffer();
-        servo = new StringBuffer();
-        exit = new StringBuffer();
-        connectedStatus = new StringBuffer();
-        handler = new Handler();
+        mThrottle = new StringBuffer();
+        mSteering = new StringBuffer();
+        mRoverFace = new StringBuffer();
+        mServo = new StringBuffer();
+        mExit = new StringBuffer();
+        mConnectedStatus = new StringBuffer();
+        mConnectionStatusHandler = new Handler();
 
-        throttle.append(0);
-        steering.append(0);
-        roverFace.append(0);
-        connectedStatus.append("50");
-        servo.append(0);
-        exit.append("False");
-        handler = new Handler();
-        connected = (CheckBox) findViewById(R.id.checkBox);
-        socketButton = (Button) findViewById(R.id.socketConnect);
-        disconnect = (Button) findViewById(R.id.disconnect);
-        toggle = (ToggleButton) findViewById(R.id.toggleButton);
+        mThrottle.append(0);
+        mSteering.append(0);
+        mRoverFace.append(0);
+        mConnectedStatus.append("50");
+        mServo.append(0);
+        mExit.append("False");
+        mConnectionStatusHandler = new Handler();
+        mConnected = (CheckBox) findViewById(R.id.checkBox);
+        mSocketButton = (Button) findViewById(R.id.socketConnect);
+        mDisconnectButton = (Button) findViewById(R.id.disconnect);
+        mToggleButton = (ToggleButton) findViewById(R.id.toggleButton);
 
-        myVib = (Vibrator) this.getSystemService(VIBRATOR_SERVICE); //For Haptic Feedback
-        socketButton.setOnClickListener(this);
-        disconnect.setOnClickListener(this);
-        socketrunnable = new SocketRunnable(throttle, steering, roverFace, servo, mmSocket,exit,connectedStatus);
+        mVibrator = (Vibrator) this.getSystemService(VIBRATOR_SERVICE); //For Haptic Feedback
+        mSocketButton.setOnClickListener(this);
+        mDisconnectButton.setOnClickListener(this);
+        socketrunnable = new SocketRunnable(mThrottle, mSteering, mRoverFace, mServo, mSocket, mExit,
+                mConnectedStatus);
 
 
 
@@ -124,22 +121,22 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             switch (pos) {
                 case 0:
                     // Whatever you want to happen when the first item gets selected
-                    roverFace.delete(0, roverFace.length());
-                    roverFace.append(0);
+                    mRoverFace.delete(0, mRoverFace.length());
+                    mRoverFace.append(0);
                     break;
                 case 1:
                     // Whatever you want to happen when the second item gets selected
-                    roverFace.delete(0, roverFace.length());
-                    roverFace.append(1);
+                    mRoverFace.delete(0, mRoverFace.length());
+                    mRoverFace.append(1);
                     break;
                 case 2:
                     // Whatever you want to happen when the thrid item gets selected
-                    roverFace.delete(0, roverFace.length());
-                    roverFace.append(2);
+                    mRoverFace.delete(0, mRoverFace.length());
+                    mRoverFace.append(2);
                     break;
                 case 3:
-                    roverFace.delete(0, roverFace.length());
-                    roverFace.append(3);
+                    mRoverFace.delete(0, mRoverFace.length());
+                    mRoverFace.append(3);
             }
         }
 
@@ -148,10 +145,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             /*
             switch (pos) {
                 case 0:
-                    connection_name = "raspberrypi";
+                    mConnectionName = "raspberrypi";
                     break;
                 case 1:
-                    connection_name = "demoRover";
+                    mConnectionName = "demoRover";
             }
             */
         }
@@ -167,22 +164,22 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         switch (source)
         {
             case R.id.JoystickRight:
-                steering.delete(0,steering.length());
-                steering.append((int) (xPercent * 100));
-                myVib.vibrate((int) Math.abs((100* xPercent)/3));
+                mSteering.delete(0, mSteering.length());
+                mSteering.append((int) (xPercent * 100));
+                mVibrator.vibrate((int) Math.abs((100* xPercent)/3));
                 break;
 
             case R.id.JoystickLeft:
-                throttle.delete(0,throttle.length());
-                if (!toggle.isChecked()){
+                mThrottle.delete(0, mThrottle.length());
+                if (!mToggleButton.isChecked()){
                     yPercent = yPercent/2;
-                    toggle.setBackgroundResource(R.drawable.button_bg_round_red);
+                    mToggleButton.setBackgroundResource(R.drawable.button_bg_round_red);
                 }
                 else{
-                    toggle.setBackgroundResource(R.drawable.button_bg_round);
+                    mToggleButton.setBackgroundResource(R.drawable.button_bg_round);
                 }
-                throttle.append((int) (yPercent * -100));
-                myVib.vibrate((int) Math.abs((100* yPercent)/3));
+                mThrottle.append((int) (yPercent * -100));
+                mVibrator.vibrate((int) Math.abs((100* yPercent)/3));
                 break;
         }
     }
@@ -190,42 +187,44 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     public void onClick(View v) {
-        connection_name = "demoRover";
+        mConnectionName = "demoRover";
         final BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
         if (pairedDevices.size() > 0) {
             for (BluetoothDevice device : pairedDevices) {
-                if (Objects.equals(device.getName(), connection_name)) {
-                    mmDevice = device;
+                if (Objects.equals(device.getName(), mConnectionName)) {
+                    mBluetoothDevice = device;
                 }
             }
         }
         BluetoothSocket tmp = null;
         String uuid = "94f39d29-7d6d-437d-973b-fba39e49d4ee";
         try {
-            tmp = mmDevice.createRfcommSocketToServiceRecord(UUID.fromString(uuid));
+            tmp = mBluetoothDevice.createRfcommSocketToServiceRecord(UUID.fromString(uuid));
         } catch (IOException e) {
             Log.e("connectfail", "Socket's create() method failed", e);
         }
-        mmSocket = tmp;
+        mSocket = tmp;
         mBluetoothAdapter.cancelDiscovery();
         try {
-            mmSocket.connect();
+            mSocket.connect();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         switch (v.getId()){
             case R.id.socketConnect:
-                exit.delete(0,exit.length());
-                exit.append("False");
-                SocketRunnable socketrunnable = new SocketRunnable(throttle, steering, roverFace, servo, mmSocket,exit,connectedStatus);
+                mExit.delete(0, mExit.length());
+                mExit.append("False");
+                SocketRunnable socketrunnable = new SocketRunnable(mThrottle, mSteering, mRoverFace,
+                        mServo,
+                        mSocket, mExit, mConnectedStatus);
                 new Thread(socketrunnable).start();
 
                 break;
             case R.id.disconnect:
-                exit.delete(0,exit.length());
-                exit.append("True");
+                mExit.delete(0, mExit.length());
+                mExit.append("True");
                 break;
         }
 
@@ -233,31 +232,31 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     @Override
     public void onPause() {
         super.onPause();
-        exit.delete(0,exit.length());
-        exit.append("True");
+        mExit.delete(0, mExit.length());
+        mExit.append("True");
     }
     @Override
     public void onStart() {
         super.onStart();
-        handler.postDelayed(new Runnable(){
+        mConnectionStatusHandler.postDelayed(new Runnable(){
             public void run(){
-                Log.d("handler",connectedStatus.toString());
-                if (connectedStatus.toString().equals("49")){
-                    connected.setChecked(TRUE);
-                    disconnect.setBackgroundResource(R.drawable.disconnectbuttonred);
-                    socketButton.setBackgroundResource(R.drawable.roundedbuttongrey);
-                } else if (connectedStatus.toString().equals("48")) {
-                    exit.delete(0,exit.length());
-                    exit.append("True");
-                    connected.setChecked(FALSE);
-                    socketButton.setBackgroundResource(R.drawable.roundedbutton);
-                    disconnect.setBackgroundResource(R.drawable.roundedbuttongrey);
+                Log.d("mConnectionStatusHandler", mConnectedStatus.toString());
+                if (mConnectedStatus.toString().equals("49")){
+                    mConnected.setChecked(TRUE);
+                    mDisconnectButton.setBackgroundResource(R.drawable.disconnect_button_red);
+                    mSocketButton.setBackgroundResource(R.drawable.rounded_button_grey);
+                } else if (mConnectedStatus.toString().equals("48")) {
+                    mExit.delete(0, mExit.length());
+                    mExit.append("True");
+                    mConnected.setChecked(FALSE);
+                    mSocketButton.setBackgroundResource(R.drawable.rounded_button);
+                    mDisconnectButton.setBackgroundResource(R.drawable.rounded_button_grey);
                 } else {
-                    connected.setChecked(FALSE);
-                    socketButton.setBackgroundResource(R.drawable.roundedbutton);
-                    disconnect.setBackgroundResource(R.drawable.roundedbuttongrey);
+                    mConnected.setChecked(FALSE);
+                    mSocketButton.setBackgroundResource(R.drawable.rounded_button);
+                    mDisconnectButton.setBackgroundResource(R.drawable.rounded_button_grey);
                 }
-                handler.postDelayed(this, 1000);
+                mConnectionStatusHandler.postDelayed(this, 1000);
             }
         }, 1000);
     }

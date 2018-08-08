@@ -8,4 +8,9 @@
     <string name="normal">Normal</string>
     <string name="connect">Connect</string>
     <string name="disconnect">Disconnect</string>
+
+    <string name="alert_title_connection_error">Connection Error</string>
+    <string name="alert_message_bluetooth_not_supported">Bluetooth is not supported on your device.</string>
+    <string name="alert_message_bluetooth_device_not_found">Unable to locate rover.</string>
+    <string name="alert_message_bluetooth_connection_error">Error creating connection with rover</string>
 </resources>

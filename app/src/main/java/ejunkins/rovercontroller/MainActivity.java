@@ -167,7 +167,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             case R.id.JoystickRight:
                 mSteering.delete(0, mSteering.length());
                 mSteering.append((int) (xPercent * 100));
-                mVibrator.vibrate((int) Math.abs((100* xPercent)/3));
+                if(xPercent > 0) {
+                    mVibrator.vibrate((int) Math.abs((100* xPercent)/3));
+                }
                 break;
 
             case R.id.JoystickLeft:
@@ -180,7 +182,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     mToggleButton.setBackgroundResource(R.drawable.button_bg_round);
                 }
                 mThrottle.append((int) (yPercent * -100));
-                mVibrator.vibrate((int) Math.abs((100* yPercent)/3));
+                if (yPercent > 0) {
+                    mVibrator.vibrate((int) Math.abs((100* yPercent)/3));
+                }
                 break;
         }
     }

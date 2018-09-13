@@ -21,6 +21,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.Spinner;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import java.io.IOException;
@@ -166,7 +167,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             case R.id.JoystickRight:
                 mSteering.delete(0, mSteering.length());
                 mSteering.append((int) (xPercent * 100));
-                mVibrator.vibrate((int) Math.abs((100* xPercent)/3));
+                if(xPercent > 0) {
+                    mVibrator.vibrate((int) Math.abs((100* xPercent)/3));
+                }
                 break;
 
             case R.id.JoystickLeft:
@@ -179,7 +182,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     mToggleButton.setBackgroundResource(R.drawable.button_bg_round);
                 }
                 mThrottle.append((int) (yPercent * -100));
-                mVibrator.vibrate((int) Math.abs((100* yPercent)/3));
+                if (yPercent > 0) {
+                    mVibrator.vibrate((int) Math.abs((100* yPercent)/3));
+                }
                 break;
         }
     }
@@ -189,43 +194,47 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     public void onClick(View v) {
         mConnectionName = "demoRover";
         final BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
-        if (pairedDevices.size() > 0) {
-            for (BluetoothDevice device : pairedDevices) {
-                if (Objects.equals(device.getName(), mConnectionName)) {
-                    mBluetoothDevice = device;
+        if(mBluetoothAdapter != null) {
+            Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
+            if (pairedDevices.size() > 0) {
+                for (BluetoothDevice device : pairedDevices) {
+                    if (Objects.equals(device.getName(), mConnectionName)) {
+                        mBluetoothDevice = device;
+                    }
                 }
             }
-        }
-        BluetoothSocket tmp = null;
-        String uuid = "94f39d29-7d6d-437d-973b-fba39e49d4ee";
-        try {
-            tmp = mBluetoothDevice.createRfcommSocketToServiceRecord(UUID.fromString(uuid));
-        } catch (IOException e) {
-            Log.e("connectfail", "Socket's create() method failed", e);
-        }
-        mSocket = tmp;
-        mBluetoothAdapter.cancelDiscovery();
-        try {
-            mSocket.connect();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+            BluetoothSocket tmp = null;
+            String uuid = "94f39d29-7d6d-437d-973b-fba39e49d4ee";
+            try {
+                tmp = mBluetoothDevice.createRfcommSocketToServiceRecord(UUID.fromString(uuid));
+            } catch (IOException e) {
+                Log.e("connectfail", "Socket's create() method failed", e);
+            }
+            mSocket = tmp;
+            mBluetoothAdapter.cancelDiscovery();
+            try {
+                mSocket.connect();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
-        switch (v.getId()){
-            case R.id.socketConnect:
-                mExit.delete(0, mExit.length());
-                mExit.append("False");
-                SocketRunnable socketrunnable = new SocketRunnable(mThrottle, mSteering, mRoverFace,
-                        mServo,
-                        mSocket, mExit, mConnectedStatus);
-                new Thread(socketrunnable).start();
+            switch (v.getId()){
+                case R.id.socketConnect:
+                    mExit.delete(0, mExit.length());
+                    mExit.append("False");
+                    SocketRunnable socketrunnable = new SocketRunnable(mThrottle, mSteering, mRoverFace,
+                            mServo,
+                            mSocket, mExit, mConnectedStatus);
+                    new Thread(socketrunnable).start();
 
-                break;
-            case R.id.disconnect:
-                mExit.delete(0, mExit.length());
-                mExit.append("True");
-                break;
+                    break;
+                case R.id.disconnect:
+                    mExit.delete(0, mExit.length());
+                    mExit.append("True");
+                    break;
+            }
+        } else {
+            Toast.makeText(mContext, "Bluetooth not enabled!", Toast.LENGTH_SHORT).show();
         }
 
     }

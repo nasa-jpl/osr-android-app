@@ -203,35 +203,46 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     }
                 }
             }
-            BluetoothSocket tmp = null;
-            String uuid = "94f39d29-7d6d-437d-973b-fba39e49d4ee";
-            try {
-                tmp = mBluetoothDevice.createRfcommSocketToServiceRecord(UUID.fromString(uuid));
-            } catch (IOException e) {
-                Log.e("connectfail", "Socket's create() method failed", e);
-            }
-            mSocket = tmp;
-            mBluetoothAdapter.cancelDiscovery();
-            try {
-                mSocket.connect();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
 
-            switch (v.getId()){
-                case R.id.socketConnect:
-                    mExit.delete(0, mExit.length());
-                    mExit.append("False");
-                    SocketRunnable socketrunnable = new SocketRunnable(mThrottle, mSteering, mRoverFace,
-                            mServo,
-                            mSocket, mExit, mConnectedStatus);
-                    new Thread(socketrunnable).start();
+            //verify there are devices to connect to
+            if (mBluetoothDevice != null){
 
-                    break;
-                case R.id.disconnect:
-                    mExit.delete(0, mExit.length());
-                    mExit.append("True");
-                    break;
+                BluetoothSocket tmp = null;
+                String uuid = "94f39d29-7d6d-437d-973b-fba39e49d4ee";
+                try {
+                    tmp = mBluetoothDevice.createRfcommSocketToServiceRecord(UUID.fromString(uuid));
+                } catch (IOException e) {
+                    Log.e("connectfail", "Socket's create() method failed", e);
+                }
+                mSocket = tmp;
+                mBluetoothAdapter.cancelDiscovery();
+                try {
+                    mSocket.connect();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                switch (v.getId()){
+                    case R.id.socketConnect:
+                        mExit.delete(0, mExit.length());
+                        mExit.append("False");
+                        SocketRunnable socketrunnable = new SocketRunnable(mThrottle, mSteering, mRoverFace,
+                                mServo,
+                                mSocket, mExit, mConnectedStatus);
+                        new Thread(socketrunnable).start();
+
+                        break;
+                    case R.id.disconnect:
+                        mExit.delete(0, mExit.length());
+                        mExit.append("True");
+                        break;
+                }
+            }else{
+
+                Log.e("connectfail", "No paired devices, please pair device first");
+
+                Toast.makeText(mContext, "No paired devices, please pair device first",
+                        (int) 2.0).show();
             }
         } else {
             Toast.makeText(mContext, "Bluetooth not enabled!", Toast.LENGTH_SHORT).show();

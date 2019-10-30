@@ -10,8 +10,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Vibrator;
-import android.support.annotation.RequiresApi;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -260,7 +260,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         super.onStart();
         mConnectionStatusHandler.postDelayed(new Runnable(){
             public void run(){
-                Log.d("mConnectionStatusHandler", mConnectedStatus.toString());
+                Log.d("ConnectionStatusHandler", mConnectedStatus.toString());
                 if (mConnectedStatus.toString().equals("49")){
                     mConnected.setChecked(TRUE);
                     mDisconnectButton.setBackgroundResource(R.drawable.disconnect_button_red);
